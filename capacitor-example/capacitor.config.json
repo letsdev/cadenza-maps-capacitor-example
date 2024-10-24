@@ -1,0 +1,10 @@
+{
+  "appId": "cadenza.capacitor.example",
+  "appName": "cadenza-capacitor-example",
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}

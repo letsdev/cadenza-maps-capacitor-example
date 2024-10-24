@@ -1,0 +1,41 @@
+{
+  "name": "capacitor-app",
+  "version": "1.0.0",
+  "description": "An Amazing Capacitor App",
+  "main": "index.js",
+  "keywords": [
+    "capacitor",
+    "mobile"
+  ],
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "addAndroid": "npx cap add android",
+    "addIos": "npx cap add ios",
+    "android": "npm i && npx cap sync android && npx cap run android --scan",
+    "ios": "npm i && npx cap sync ios && npx cap run ios",
+    "openIos": "npx cap open ios",
+    "coldStartIos": "npm i && npm run build && mkdir ./dist/js && mkdir ./dist/lib && mkdir ./dist/lib/cadenza-maps && npm run maps && npm run addIos && npm run openIos"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/camera": "latest",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/filesystem": "^6.0.1",
+    "@capacitor/ios": "^6.1.2",
+    "@capacitor/splash-screen": "latest",
+    "cordova-plugin-device": "2.1.0",
+    "cordova-plugin-file": "8.0.0",
+    "cordova-plugin-file-transfer": "file:plugins_local/cordova-plugin-file-transfer",
+    "cordova-spatialite-storage": "file:plugins_local/cordova-spatialite-storage",
+    "net.disy.cm.AppPlugin": "file:plugins_local/net.disy.cm.AppPlugin",
+    "net.disy.cm.zip": "file:plugins_local/net.disy.cm.zip"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2",
+    "vite": "^2.9.13"
+  },
+  "author": "",
+  "license": "ISC"
+}
