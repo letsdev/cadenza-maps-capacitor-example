@@ -2,4 +2,9 @@
 
 Setup:
 - place cadenza-maps.js (use artefact cadenza-maps-capacitor:2.0.24) under src/lib/cadenza-maps
-- copy current version of "cordova-plugin-file-transfer", "cordova-spatialite-storage", "net.disy.cm.AppPlugin" and "net.disy.cm.zip" under plugins_local
+- add GIS 2go server credentials to mobileServerAccount and mobileServerPassword
+- run "coldStartAndroid" or "coldStartIos"
+
+Content:
+- capacitor-welcome.js: initializes cadenza-maps, loads a map with a WMTS layer from sgx.geodatenzentrum.de/wmts_topplus_open, starts a map download and cancels it
+- capacitor-example-wmts-factory.js: uses WMTSLayerFactory to add a WMTS layer to an existing map

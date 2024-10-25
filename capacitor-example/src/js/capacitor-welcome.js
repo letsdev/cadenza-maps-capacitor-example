@@ -42,11 +42,11 @@ const largeMap = {
 };
 
 const mapDescription = {
-  "id": "osm",
-  "baseURI": "file:///data/user/0/net.disy.cadenza.mobile.app/files/files/CadenzaMobile/maps/osm/",
+  "id": "test",
+  "baseURI": '',
   "readFromMapModFile": false,
   "mapConfiguration": {
-    "id": "osm",
+    "id": "test",
     "general": {
       "boundingBox": {
         "srs": "EPSG:25832",
@@ -55,7 +55,7 @@ const mapDescription = {
         "maxx": 20037508.34,
         "maxy": 20037508.34
       },
-      "title": "OSM",
+      "title": "Test Map",
       "abstract": "OpenStreetMap",
       "extension": {
         "autoGeolocate": true,
@@ -227,5 +227,6 @@ const mapDescription = {
 
   setTimeout(() => {
     client.abortFileTransferByMapId('download309');
-  }, 15000);
+  }, 11000);
+
 })();
