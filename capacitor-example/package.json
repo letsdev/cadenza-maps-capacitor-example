@@ -11,12 +11,14 @@
     "start": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "copyCadenzaMaps": "mkdir -p ./dist/lib && mkdir -p ./dist/lib/cadenza-maps && cp ./src/lib/cadenza-maps/cadenza-maps.js ./dist/lib/cadenza-maps && cp ./src/lib/cadenza-maps/cadenza-maps.js.map ./dist/lib/cadenza-maps",
     "addAndroid": "npx cap add android",
+    "android": "npm run build && npx cap sync android && npx cap run android --scan",
+    "coldStartAndroid": "npm i && npm run build && npm run copyCadenzaMaps && npm run addAndroid && npm run android",
     "addIos": "npx cap add ios",
-    "android": "npm i && npx cap sync android && npx cap run android --scan",
     "ios": "npm i && npx cap sync ios && npx cap run ios",
     "openIos": "npx cap open ios",
-    "coldStartIos": "npm i && npm run build && mkdir ./dist/js && mkdir ./dist/lib && mkdir ./dist/lib/cadenza-maps && npm run maps && npm run addIos && npm run openIos"
+    "coldStartIos": "npm i && npm run build && npm run copyCadenzaMaps && npm run addIos && npm run openIos"
   },
   "dependencies": {
     "@capacitor/android": "^6.1.2",
