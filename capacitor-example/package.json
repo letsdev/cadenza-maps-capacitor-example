@@ -1,6 +1,6 @@
 {
   "name": "capacitor-app",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "An Amazing Capacitor App",
   "main": "index.js",
   "keywords": [
@@ -12,8 +12,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "copyCadenzaMaps": "mkdir -p ./dist/lib && mkdir -p ./dist/lib/cadenza-maps && cp ./src/lib/cadenza-maps/cadenza-maps.js ./dist/lib/cadenza-maps && cp ./src/lib/cadenza-maps/cadenza-maps.js.map ./dist/lib/cadenza-maps",
-    "addAndroid": "npx cap add android",
     "android": "npm run build && npx cap sync android && npx cap run android --scan",
+    "addAndroid": "npx cap add android && mkdir ./android/app/src/main/jniLibs && cp -rf ./android/capacitor-cordova-android-plugins/src/main/libs/* ./android/app/src/main/jniLibs",
     "coldStartAndroid": "npm i && npm run build && npm run copyCadenzaMaps && npm run addAndroid && npm run android",
     "addIos": "npx cap add ios",
     "ios": "npm i && npx cap sync ios && npx cap run ios",
@@ -29,10 +29,10 @@
     "@capacitor/splash-screen": "latest",
     "cordova-plugin-device": "2.1.0",
     "cordova-plugin-file": "8.0.0",
-    "cordova-plugin-file-transfer": "file:plugins_local/cordova-plugin-file-transfer",
-    "cordova-spatialite-storage": "file:plugins_local/cordova-spatialite-storage",
-    "net.disy.cm.AppPlugin": "file:plugins_local/net.disy.cm.AppPlugin",
-    "net.disy.cm.zip": "file:plugins_local/net.disy.cm.zip"
+    "cordova-plugin-file-transfer": "github:letsdev/cordova-plugin-file-transfer#1.8.0",
+    "cordova-spatialite-storage": "github:letsdev/Cordova-spatialite-storage#1.4.1",
+    "net.disy.cm.AppPlugin": "github:letsdev/cordova-plugin-cadenza-maps-app#1.0.3",
+    "net.disy.cm.zip": "github:letsdev/cordova-plugin-cadenza-maps-zip#1.0.5"
   },
   "devDependencies": {
     "@capacitor/cli": "^6.1.2",
