@@ -807,9 +807,9 @@ const setUpCadenzaMapsAndGetMapFactory = async () => {
 
   const _cadenzaStore = new CadenzaMaps.CadenzaStore({
     mobileAppDataPath: '/',
-    mobileServerUrl: 'https://gis2go.disy.net/cadenza-mobile-server/MobileDataService',
-    mobileServerAccount: '',
-    mobileServerPassword: '',
+    mobileServerUrl: `${CMS_BASE_URL}/cadenza-mobile-server/MobileDataService`,
+    mobileServerAccount: CMS_ACCOUNT_KEY,
+    mobileServerPassword: CMS_ACCOUNT_PW,
     bundleIdentifier: 'net.disy.cadenza.mobile.app',
     appVersion: '3.6.0',
     invalidAppVersionErrorHandler: () => { },
@@ -914,7 +914,7 @@ const mainWithDownloadCancel = async () => {
   }, 10000);
 
   setTimeout(() => {
-    client.abortFileTransferByMapId('download309');
+    client.abortFileTransferByMapId(DOWNLOADABLE_MAP_ID);
   }, 11000);
 }
 
