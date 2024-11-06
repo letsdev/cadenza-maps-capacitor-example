@@ -140,9 +140,9 @@ const wmtsLayerConfigurationItem = {
 
   const _cadenzaStore = new CadenzaMaps.CadenzaStore({
     mobileAppDataPath: '',
-    mobileServerUrl: 'https://gis2go.disy.net/cadenza-mobile-server/MobileDataService',
-    mobileServerAccount: '',
-    mobileServerPassword: '',
+    mobileServerUrl: `${CMS_BASE_URL}/cadenza-mobile-server/MobileDataService`,
+    mobileServerAccount: CMS_ACCOUNT_KEY,
+    mobileServerPassword: CMS_ACCOUNT_PW,
     bundleIdentifier: 'net.disy.cadenza.mobile.app',
     appVersion: '3.6.0',
     invalidAppVersionErrorHandler: () => { },
