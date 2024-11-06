@@ -173,8 +173,21 @@ const mapDescription = {
   }
 };
 
-(async () => {
+/**
+ * Get map configuration by id
+ * @desc Get all downloadable map via "mapRepository.getDownloadableMaps()" and find id
+ * @param mapRepository
+ * @param id
+ * @returns {Promise<*>}
+ */
+const getMapConfigurationById = async (mapRepository, id) => {
+  const maps = await mapRepository.getDownloadableMaps();
+  // const m = maps.filter(map => map.title.includes('Rettungstreffpunkte')); // 'Herzog'
+  const mapConfig = maps.find(map => map.id === id);
+  return mapConfig
+}
 
+(async () => {
   const _cadenzaStore = new CadenzaMaps.CadenzaStore({
     mobileAppDataPath: '',
     mobileServerUrl: `${CMS_BASE_URL}/cadenza-mobile-server/MobileDataService`,
@@ -187,6 +200,11 @@ const mapDescription = {
     spatialiteServerUrl: ''
   });
   const mapRepository = new CadenzaMaps.MapRepository(_cadenzaStore)
+
+  // NOTE: Get the map configuration for "DOWNLOADABLE_MAP_ID"
+  // const mapConfig = await getMapConfigurationById(mapRepository, DOWNLOADABLE_MAP_ID);
+  // console.log(mapConfig);
+
   const _mapViewFactory = new CadenzaMaps.MapViewFactory(mapRepository, {
   });
 
