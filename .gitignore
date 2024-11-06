@@ -10,3 +10,4 @@ cadenza-maps.js
 capacitor-example/android/
 capacitor-example/ios/
 plugins_local/
+.env.local
