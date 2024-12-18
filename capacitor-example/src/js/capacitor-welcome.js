@@ -442,7 +442,7 @@ const layerConfigurationItems = {
 
 const sldStrings = {
   cluster: `
-  <?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <sld:StyledLayerDescriptor xmlns:sld="http://www.opengis.net/sld" xmlns="http://www.opengis.net/sld" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" version="1.0.0">
     <sld:NamedLayer>
         <sld:Name>default</sld:Name>
@@ -452,8 +452,6 @@ const sldStrings = {
             <sld:FeatureTypeStyle>
                 <sld:Name>name</sld:Name>
                 <sld:Rule>
-                    <sld:ElseFilter/>
-                    <sld:MaxScaleDenominator>1.7976931348623157E308</sld:MaxScaleDenominator>
                     <sld:PointSymbolizer>
                         <sld:Graphic>
                             <sld:Mark>
@@ -466,19 +464,6 @@ const sldStrings = {
                             <sld:Size>10.0</sld:Size>
                         </sld:Graphic>
                     </sld:PointSymbolizer>
-                    <sld:LineSymbolizer>
-                        <sld:Stroke>
-                            <sld:CssParameter name="stroke">#FF0000</sld:CssParameter>
-                            <sld:CssParameter name="stroke-width">2.0</sld:CssParameter>
-                        </sld:Stroke>
-                    </sld:LineSymbolizer>
-                    <sld:PolygonSymbolizer>
-                        <sld:Fill>
-                            <sld:CssParameter name="fill">#FF0000</sld:CssParameter>
-                            <sld:CssParameter name="fill-opacity">0.49</sld:CssParameter>
-                        </sld:Fill>
-                        <sld:Stroke/>
-                    </sld:PolygonSymbolizer>
                 </sld:Rule>
             </sld:FeatureTypeStyle>
         </sld:UserStyle>
@@ -509,7 +494,7 @@ const sldStrings = {
                         <sld:Graphic>
                             <sld:Mark>
                                 <sld:Fill>
-                                    <sld:CssParameter name="fill">#FF0000</sld:CssParameter>
+                                    <sld:CssParameter name="fill">#16DD90</sld:CssParameter>
                                 </sld:Fill>
                                 <sld:Stroke/>
                             </sld:Mark>
@@ -531,7 +516,7 @@ const sldStrings = {
 
                     <sld:LineSymbolizer>
                         <sld:Stroke>
-                            <sld:CssParameter name="stroke">#FF0000</sld:CssParameter>
+                            <sld:CssParameter name="stroke">#16DD90</sld:CssParameter>
                             <sld:CssParameter name="stroke-width">2.0</sld:CssParameter>
                         </sld:Stroke>
                     </sld:LineSymbolizer>
@@ -896,15 +881,18 @@ const mainWithClusteredFeatures = async () => {
     distance: 20,
     threshold: 3
   };
-  const clusteredFeatureLayer = await featureLayerFactory.create(
-    mapDescriptions.osm,
-    layerConfigurationItems.feature,
-    map,
-    featureClusterOptions
-  );
 
-  const style = await getSldFunctionFromSldString(sldStrings.cluster);
-  clusteredFeatureLayer.setStyle(style);
+  const clusterStyleFunction = await getSldFunctionFromSldString(sldStrings.cluster);
+  const defaultStyleFunction = await getSldFunctionFromSldString(sldStrings.default);
+
+  const clusteredFeatureLayer = await featureLayerFactory.create({
+    mapConfigurationItem: mapDescriptions.osm,
+    layerConfigurationItem: layerConfigurationItems.feature,
+    hostingMap: map,
+    featureClusterOptions: featureClusterOptions,
+    defaultStyleFunction: defaultStyleFunction,
+    clusterStyleFunction: clusterStyleFunction
+  });
 
   map.addLayer(clusteredFeatureLayer);
 
@@ -921,7 +909,10 @@ const mainWithDownloadCancel = async () => {
 
   setUpButtons({
     map: map,
-    featureSource: map.getNotesLayer().getSource()
+    featureSource: map
+      .getAllLayers()
+      .find(it => it.layerConfiguration?.id === 'NOTES')
+      .getSource()
   });
 
   setTimeout(() => {
@@ -956,13 +947,20 @@ const mainWithWmtsLayer = async () => {
   const map = await mapFactory.create(mapDescriptions.wmtsBase, 'map');
 
   const wmtsLayerFactory = new window.CadenzaMaps.layer.factory.wmts();
-  const wmtsLayer = await wmtsLayerFactory.create(mapDescriptions.wmtsBase, layerConfigurationItems.wmts, map);
+  const wmtsLayer = await wmtsLayerFactory.create({
+    mapConfigurationItem: mapDescriptions.wmtsBase,
+    layerConfigurationItem: layerConfigurationItems.wmts,
+    hostingMap: map
+  });
 
   map.addLayer(wmtsLayer);
 
   setUpButtons({
     map: map,
-    featureSource: map.getNotesLayer().getSource()
+    featureSource: map
+      .getAllLayers()
+      .find(it => it.layerConfiguration?.id === 'NOTES')
+      .getSource()
   });
 }
 
@@ -972,11 +970,11 @@ const mainWithSld = async () => {
   const map = await mapFactory.create(mapDescriptions.osm, 'map');
 
   const featureLayerFactory = new window.CadenzaMaps.layer.factory.feature();
-  const styledFeatureLayer = await featureLayerFactory.create(
-    mapDescriptions.osm,
-    layerConfigurationItems.feature,
-    map
-  );
+  const styledFeatureLayer = await featureLayerFactory.create({
+    mapConfigurationItem: mapDescriptions.osm,
+    layerConfigurationItem: layerConfigurationItems.feature,
+    hostingMap: map
+  });
 
   const style = await getSldFunctionFromSldString(sldStrings.default);
   styledFeatureLayer.setStyle(style);
