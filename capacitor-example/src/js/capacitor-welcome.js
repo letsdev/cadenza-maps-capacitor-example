@@ -578,6 +578,14 @@ const redoGeometry = (options) => {
   editGeometryLayer.redo();
 }
 
+const cancelEditGeometry = (options) => {
+
+  const map = options.map;
+
+  const editGeometryLayer = map.getEditGeometryLayer();
+  editGeometryLayer.stopDrawing();
+}
+
 const undoGeometry = (options) => {
 
   const map = options.map;
@@ -602,7 +610,9 @@ const endEditAndAddToSource = (options) => {
   const editGeometryLayer = map.getEditGeometryLayer();
 
   const olFeature = editGeometryLayer.getOlEditFeature();
-  editGeometryLayer.stopDrawing();
+  cancelEditGeometry({
+    map: map
+  });
 
   const gtmFeature = GTM.GtmFeature.fromOlFeature(olFeature);
 
@@ -626,6 +636,7 @@ const setUpButtons = async (options) => {
 
   const buttonElements = {
     btnDraw: document.getElementById('btn_draw'),
+    btnCancel: document.getElementById('btn_cancel'),
     btnUndo: document.getElementById('btn_undo'),
     btnRedo: document.getElementById('btn_redo'),
     btnSetNextGeoType: document.getElementById('btn_type'),
@@ -639,6 +650,7 @@ const setUpButtons = async (options) => {
     const isEdit = options.isEdit;
 
     buttonElements.btnDraw.classList.toggle('hidden', isEdit);
+    buttonElements.btnCancel.classList.toggle('hidden', !isEdit);
     buttonElements.btnUndo.classList.toggle('hidden', !isEdit);
     buttonElements.btnRedo.classList.toggle('hidden', !isEdit);
     buttonElements.btnSetNextGeoType.classList.toggle('hidden', !isEdit);
@@ -647,12 +659,20 @@ const setUpButtons = async (options) => {
   }
 
   buttonElements.btnDraw.addEventListener('click', () => {
+    hideLayerSwitcher();
     setGeoEditButtonStates({ isEdit: true })
     startEditGeometry({
       map: map,
       onGeometryChanged: (geometryChangedWatchedData) => {
         console.log(geometryChangedWatchedData);
       }
+    });
+  })
+
+  buttonElements.btnCancel.addEventListener('click', () => {
+    setGeoEditButtonStates({ isEdit: false });
+    cancelEditGeometry({
+      map: map
     });
   })
 
@@ -675,7 +695,7 @@ const setUpButtons = async (options) => {
   })
 
   buttonElements.btnSaveGeo.addEventListener('click', () => {
-    setGeoEditButtonStates({ isEdit: false })
+    setGeoEditButtonStates({ isEdit: false });
     endEditAndAddToSource({
       map: map,
       source: featureSource
@@ -695,6 +715,11 @@ const setUpButtons = async (options) => {
   setUpLayerSwitcher({
     map
   });
+}
+
+const hideLayerSwitcher = () => {
+  const popover = document.querySelector('.popover');
+  popover.style.display = 'none';
 }
 
 const setUpLayerSwitcher = (options) => {
@@ -780,8 +805,6 @@ const setUpLayerSwitcher = (options) => {
     draggedItem = null;
     initialIndex = null;
   }
-
-
 
   const populatePopover = (items) => {
 
