@@ -15,6 +15,7 @@
     "android": "npm run build && npx cap sync android && npx cap run android --scan",
     "addAndroid": "npx cap add android && mkdir ./android/app/src/main/jniLibs && cp -rf ./android/capacitor-cordova-android-plugins/src/main/libs/* ./android/app/src/main/jniLibs",
     "coldStartAndroid": "npm i && npm run build && npm run copyCadenzaMaps && npm run addAndroid && npm run android",
+    "copyAndRunAndroid": "npm run copyCadenzaMaps && npm run android",
     "addIos": "npx cap add ios",
     "ios": "npm i && npx cap sync ios && npx cap run ios",
     "openIos": "npx cap open ios",
