@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.3.0] - 2025-01-09
+### Added
+- applied extensions from dev/hrzg branch
+- possibility to draw geometries / add features
+- sld service show case
+- enabled cluster feature
+- zoom and layer switcher controls
+
 ## [0.2.0] - 2024-10-24
 ### Added
 - wmts online layer integration
