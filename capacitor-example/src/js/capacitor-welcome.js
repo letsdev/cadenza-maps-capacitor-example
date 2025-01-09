@@ -81,97 +81,7 @@ const mapDescriptions = {
           "cmmapVersion": "1.1.0"
         }
       }, "layerList": {
-        "layer": [
-          {
-            "id": "test",
-            "queryable": false,
-            "utfgrid": false,
-            "hidden": false,
-            "server": {
-              "service": "OGC:WMTS",
-              "onlineResource": {
-                "href": "https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml"
-              }
-            },
-            "legend": {
-              "thumbnail": {
-                "onlineResource": {
-                  "href": "legend.png"
-                },
-                "width": 22,
-                "height": 28,
-                "format": "image/png"
-              }
-            },
-            "name": "web",
-            "title": "TopPlusOpen",
-            "formatList": {
-              "format": [{
-                "value": "image/png",
-                "current": true
-              }]
-            },
-            "styleList": {
-              "style": [{
-                "name": "default",
-                "title": "Default",
-                "current": true
-              }]
-            },
-            "extension": {
-              "requestEncoding": "REST",
-              "isBaseLayer": false,
-              "matrixSet": "EU_EPSG_25832_TOPPLUS",
-              // "matrixSet": "WEBMERCATOR",
-              "serverResolutions": [
-                156543.033928041,
-                78271.5169640204,
-                39135.7584820102,
-                19567.8792410051,
-                9783.93962050255,
-                4891.96981025128,
-                2445.98490512564,
-                1222.99245256282,
-                611.496226281409,
-                305.748113140705,
-                152.874056570352,
-                76.4370282851762,
-                38.2185141425881,
-                19.109257071294,
-                9.55462853564702,
-                4.77731426782351,
-                2.38865713391176,
-                1.19432856695588,
-                0.597164283477939
-              ],
-              "matrixIds": [
-                "00",
-                "01",
-                "02",
-                "03",
-                "04",
-                "05",
-                "06",
-                "07",
-                "08",
-                "09",
-                "10",
-                "11",
-                "12",
-                "13",
-                "14",
-                "15",
-                "16",
-                "17",
-                "18"
-              ],
-              "editable": false,
-              "geometryEditable": false,
-              "sphericalMercator": false,
-              "wrapDateLine": false
-            }
-          }
-        ]
+        "layer": []
       }
     }
   },
@@ -290,8 +200,7 @@ const layerConfigurationItems = {
       "extension": {
         "requestEncoding": "REST",
         "isBaseLayer": false,
-        "matrixSet": "EU_EPSG_25832_TOPPLUS",
-        // "matrixSet": "WEBMERCATOR",
+        "matrixSet": "WEBMERCATOR",
         "serverResolutions": [
           156543.033928041,
           78271.5169640204,
