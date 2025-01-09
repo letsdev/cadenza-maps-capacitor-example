@@ -18,21 +18,60 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="stylesheet" href="./css/style.css" />
   <meta name="theme-color" content="#31d53d" />
-
-  <style>
-    .map {
-      width: 100%;
-      height: 1000px;
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
   <capacitor-welcome></capacitor-welcome>
   <div id="map" class="map"></div>
 
-  <script src="./lib/cadenza-maps/cadenza-maps.js" type="module"></script>
+  <!-- Top Left Buttons -->
+  <div class="button-container top-left">
+    <button id="btn_draw" class="material-icon-button">
+      <span class="material-icons">create</span>
+    </button>
+    <button id="btn_cancel" class="material-icon-button hidden">
+      <span class="material-icons">close</span>
+    </button>
+    <button id="btn_undo" class="material-icon-button hidden">
+      <span class="material-icons">undo</span>
+    </button>
+    <button id="btn_redo" class="material-icon-button hidden">
+      <span class="material-icons">redo</span>
+    </button>
+    <button id="btn_type" class="material-icon-button hidden">
+      <span class="material-icons">polyline</span>
+    </button>
+    <button id="btn_save" class="material-icon-button hidden">
+      <span class="material-icons">check</span>
+    </button>
+  </div>
 
+  <!-- Top Right Button -->
+  <div class="button-container top-right">
+    <button id="btn_layers" class="material-icon-button">
+      <span class="material-icons">menu</span>
+    </button>
+  </div>
+
+  <div class="popover-container">
+    <div class="popover">
+      <!-- Items will be dynamically inserted here -->
+    </div>
+  </div>
+
+
+  <!-- Bottom Right Buttons -->
+  <div class="button-container bottom-right">
+    <button id="btn_plus" class="material-icon-button">
+      <span class="material-icons">add</span>
+    </button>
+    <button id="btn_minus" class="material-icon-button">
+      <span class="material-icons">remove</span>
+    </button>
+  </div>
+
+  <script src="./lib/cadenza-maps/cadenza-maps.js" type="module"></script>
   <script src="./js/capacitor-welcome.js" type="module"></script>
 </body>
 
