@@ -843,21 +843,19 @@ const setUpCadenzaMapsAndGetMapFactory = async () => {
 
   await _mapViewFactory.ready();
 
-  const client = _cadenzaStore.getGtmMobileServerClient();
-  const mapFactory = _mapViewFactory.getGtmMapFactory();
   const mapViewFactory = _mapViewFactory;
-
   const mapView = mapViewFactory.createMapView({
     targetElement: 'map'
   });
 
-  return mapFactory;
+  return _mapViewFactory;
 }
 
 const main = async () => {
 
   const mapFactory = await setUpCadenzaMapsAndGetMapFactory();
-  const map = await mapFactory.create(mapDescriptions.osm, 'map');
+  const gtmMapFactory = mapFactory.getGtmMapFactory();
+  const map = await gtmMapFactory.create(mapDescriptions.osm, 'map');
 
   setUpButtons({
     map: map,
@@ -871,7 +869,8 @@ const main = async () => {
 const mainWithClusteredFeatures = async () => {
 
   const mapFactory = await setUpCadenzaMapsAndGetMapFactory();
-  const map = await mapFactory.create(mapDescriptions.osm, 'map');
+  const gtmMapFactory = mapFactory.getGtmMapFactory();
+  const map = await gtmMapFactory.create(mapDescriptions.osm, 'map');
 
   const featureLayerFactory = new window.CadenzaMaps.layer.factory.feature();
   const featureClusterOptions = {
@@ -902,7 +901,8 @@ const mainWithClusteredFeatures = async () => {
 const mainWithDownloadCancel = async () => {
 
   const mapFactory = await setUpCadenzaMapsAndGetMapFactory();
-  const map = await mapFactory.create(mapDescriptions.osm, 'map');
+  const gtmMapFactory = mapFactory.getGtmMapFactory();
+  const map = await gtmMapFactory.create(mapDescriptions.osm, 'map');
 
   setUpButtons({
     map: map,
@@ -919,7 +919,7 @@ const mainWithDownloadCancel = async () => {
       updateCount++;
     };
 
-    mapRepository.downloadMap(mapDescriptions.largeMap, onProgress, {
+    mapFactory.getMapRepository().downloadMap(mapDescriptions.largeMap, onProgress, {
       deleteExisting: false,
       keepLocalChanges: false
     }).then(() => {
@@ -933,6 +933,8 @@ const mainWithDownloadCancel = async () => {
     });
   }, 10000);
 
+  const client = mapFactory.getMapRepository().getCadenzaStore().getGtmMobileServerClient();
+
   setTimeout(() => {
     client.abortFileTransferByMapId(DOWNLOADABLE_MAP_ID);
   }, 11000);
@@ -941,7 +943,8 @@ const mainWithDownloadCancel = async () => {
 const mainWithWmtsLayer = async () => {
 
   const mapFactory = await setUpCadenzaMapsAndGetMapFactory();
-  const map = await mapFactory.create(mapDescriptions.wmtsBase, 'map');
+  const gtmMapFactory = mapFactory.getGtmMapFactory();
+  const map = await gtmMapFactory.create(mapDescriptions.wmtsBase, 'map');
 
   const wmtsLayerFactory = new window.CadenzaMaps.layer.factory.wmts();
   const wmtsLayer = await wmtsLayerFactory.create({
@@ -964,7 +967,8 @@ const mainWithWmtsLayer = async () => {
 const mainWithSld = async () => {
 
   const mapFactory = await setUpCadenzaMapsAndGetMapFactory();
-  const map = await mapFactory.create(mapDescriptions.osm, 'map');
+  const gtmMapFactory = mapFactory.getGtmMapFactory();
+  const map = await gtmMapFactory.create(mapDescriptions.osm, 'map');
 
   const featureLayerFactory = new window.CadenzaMaps.layer.factory.feature();
   const styledFeatureLayer = await featureLayerFactory.create({
