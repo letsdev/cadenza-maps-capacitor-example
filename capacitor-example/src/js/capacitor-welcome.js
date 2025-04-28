@@ -14,7 +14,7 @@ const MAIN_FUNCTIONS = [
   'mainHerzogExample1', // 11
   'mainHerzogExample1WithClustering', // 12
 ]
-const EXECUTE_MAIN = MAIN_FUNCTIONS[8]; // Change this to run a different example
+const EXECUTE_MAIN = MAIN_FUNCTIONS[12]; // Change this to run a different example
 
 const MAP_DESCRIPTIONS = {
   largeMap: {
