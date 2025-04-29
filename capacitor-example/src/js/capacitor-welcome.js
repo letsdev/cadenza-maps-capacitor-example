@@ -1229,7 +1229,7 @@ const mainHerzogExample1WithClustering = async () => {
     mapConfigurationItem: mapConfigurationItem,
     layerConfigurationItem: {
       ...revierGrenzenLayerConfigurationItem,
-      mapId: rettungsKarteMapConfigurationItem.id
+      mapId: mapConfigurationItem.id
     },
     hostingMap: map,
     featureClusterOptions: featureClusterOptions,
