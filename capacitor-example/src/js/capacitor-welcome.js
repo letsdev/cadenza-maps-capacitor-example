@@ -13,6 +13,7 @@ const MAIN_FUNCTIONS = [
   'mainDownloadAndShowMap', // 10
   'mainHerzogExample1', // 11
   'mainHerzogExample1WithClustering', // 12
+  'mainGetFeatureDataByClick', // 13
 ]
 const EXECUTE_MAIN = MAIN_FUNCTIONS[12]; // Change this to run a different example
 
@@ -1406,6 +1407,103 @@ const mainDownloadAndShowMap = async () => {
   });
 }
 
+const mainGetFeatureDataByClick = async () => {
+  // Set up base map with empty map description
+  const services = await setUpCadenzaMapsAndGetMapFactory();
+  const mapFactory = services.mapViewFactory;
+  const mapRepository = mapFactory.getMapRepository();
+  const gtmMapFactory = mapFactory.getGtmMapFactory();
+  const mapConfigurationItem = MAP_DESCRIPTIONS.emptyMap;
+
+  const map = await gtmMapFactory.create(mapConfigurationItem, 'map');
+
+  // Add wmts layer (TOPPLUS) 
+  const wmtsLayerFactory = new window.CadenzaMaps.layer.factory.wmts();
+  const wmtsLayer = await wmtsLayerFactory.create({
+    mapConfigurationItem: mapConfigurationItem,
+    layerConfigurationItem: LAYER_CONFIGURATION_ITEMS.wmts,
+    hostingMap: map
+  });
+
+  map.addLayer(wmtsLayer);
+
+  // Download RettungsKarte for adding reference layers
+  const onProgress = (evt) => console.log(evt.progress);
+  await mapRepository.downloadMap(
+    MAP_DESCRIPTIONS.rettungsKarte,
+    onProgress,
+    {
+      deleteExisting: true,
+      keepLocalChanges: false
+    }
+  );
+
+  // Add Rettungstreffpunkte layer from RettungsKarte
+  const mapConfigurationProvider = mapRepository.getGtmMapConfigurationProvider();
+  const mapConfigurationItems = await new Promise((res, rej) => mapConfigurationProvider.retrieveMapConfigurations(res, rej));
+
+  const referableLayerProvider = new GTM.Map.ReferableLayer.Provider(mapConfigurationItem);
+  const rettungsKarteMapConfigurationItem = mapConfigurationItems.find((it) => it.mapConfiguration?.id === 'rettungstreffpunkte');
+  const refLayerConfigurationItems = referableLayerProvider.retrieveReferableLayerDescriptions([rettungsKarteMapConfigurationItem]);
+
+  const rettungsTreffpunkteLayerConfigurationItem = refLayerConfigurationItems.find((it) => it.layerConfiguration?.id === 'rettungstreffpunkte');
+  await gtmMapFactory.createAndAddLayers(
+    map,
+    rettungsKarteMapConfigurationItem,
+    [rettungsTreffpunkteLayerConfigurationItem.layerConfiguration],
+    (e) => { }
+  );
+
+  // Prepare objects necessary for feature access
+  const rettungsTreffpunkteLayer = map.getAllLayers().find((it) => it.layerConfiguration?.id === 'rettungstreffpunkte');
+  const gtmInformer = services.mapViewFactory.getGtmInformer();
+
+  // Add click handler
+  map.onClick(async (evt) => {
+    const clickCoordinate = evt.coordinate;
+
+    // Define boundingbox at click location
+    const boundingBox = {
+      minx: clickCoordinate[0],
+      miny: clickCoordinate[1],
+      maxx: clickCoordinate[0],
+      maxy: clickCoordinate[1],
+    };
+
+    // Calculate click tolerance
+    const clickToleranceInPixels = 12;
+    const clickTolerance = map.getPixelDistanceInProjection(clickToleranceInPixels)
+
+    // Get features
+    const collectionKeyToFeatures = await new Promise((res, rej) => gtmInformer.retrieveFeaturesByBoundingBox(
+      [rettungsTreffpunkteLayer],
+      [rettungsTreffpunkteLayer.featureCollectionDescriptors[0]],
+      clickTolerance,
+      boundingBox,
+      12, // maxFeatures
+      res,
+      rej
+    ));
+
+    if (collectionKeyToFeatures['download15797.rettungstreffpunkte.default'].length > 0) {
+      const clickedFeature = collectionKeyToFeatures['download15797.rettungstreffpunkte.default'][0];
+      console.log(clickedFeature.properties.ortsbeschr); // Example for accessing feature data
+      const featureCoordinates = clickedFeature.geometry.getCoordinates();
+      const pixelXY = map.getPixelFromCoordinate(featureCoordinates);
+      console.log(pixelXY); // Use for DOM location (i.e. popover achor)
+    }
+  });
+
+
+  setUpButtons({
+    map: map,
+    featureSource: map
+      .getAllLayers()
+      .find(it => it.layerConfiguration?.id === 'NOTES')
+      .getSource()
+  });
+}
+
 switch (EXECUTE_MAIN) {
   case 'main':
     main();
@@ -1442,5 +1540,8 @@ switch (EXECUTE_MAIN) {
     break;
   case 'mainAccessCurrentLocation':
     mainAccessCurrentLocation();
+    break;
+  case 'mainGetFeatureDataByClick':
+    mainGetFeatureDataByClick();
     break;
 }
