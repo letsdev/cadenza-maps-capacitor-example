@@ -409,6 +409,38 @@ const SLD_STRINGS = {
         </sld:UserStyle>
     </sld:NamedLayer>
 </sld:StyledLayerDescriptor>`,
+cluster3: `
+<?xml version="1.0" encoding="UTF-8"?>
+<sld:StyledLayerDescriptor xmlns:sld="http://www.opengis.net/sld" xmlns="http://www.opengis.net/sld" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" version="1.0.0">
+    <sld:NamedLayer>
+        <sld:Name>default</sld:Name>
+        <sld:UserStyle>
+            <sld:Name>default</sld:Name>
+            <sld:Title>default</sld:Title>
+            <sld:FeatureTypeStyle>
+                <sld:Name>name</sld:Name>
+                <sld:Rule>
+                    <sld:PointSymbolizer>
+                        <sld:Graphic>
+                            <sld:Mark>
+                                <sld:WellKnownName>circle</sld:WellKnownName>
+                                <sld:Fill>
+                                    <sld:CssParameter name="fill">#2d8659</sld:CssParameter>
+                                </sld:Fill>
+                                <sld:Stroke>
+                                    <sld:CssParameter name="stroke">#2d8659</sld:CssParameter>
+                                    <sld:CssParameter name="stroke-opacity">0.5</sld:CssParameter>
+                                    <sld:CssParameter name="stroke-width">8</sld:CssParameter>
+                                </sld:Stroke>
+                            </sld:Mark>
+                            <sld:Size>20.0</sld:Size>
+                        </sld:Graphic>
+                    </sld:PointSymbolizer>
+                </sld:Rule>
+            </sld:FeatureTypeStyle>
+        </sld:UserStyle>
+    </sld:NamedLayer>
+</sld:StyledLayerDescriptor>`,
   default: `
 <?xml version="1.0" encoding="UTF-8"?>
 <sld:StyledLayerDescriptor xmlns:sld="http://www.opengis.net/sld" xmlns="http://www.opengis.net/sld" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" version="1.0.0">
@@ -1159,7 +1191,21 @@ const mainHerzogExample1WithClustering = async () => {
     distance: 20,
     threshold: 3
   };
-  const clusterStyleFunction = await getSldFunctionFromSldString(SLD_STRINGS.cluster);
+  const sldStyleFunction = await getSldFunctionFromSldString(SLD_STRINGS.cluster3);
+  const clusterStyleFunction = (feature, resolution) => {
+    const clusterSize = feature.get('features').length;
+
+    // We can also exclusively use OL style objects here, but this way illustrates the combination of SLD and OL styling
+    const sldStyles = sldStyleFunction(feature, resolution);
+    sldStyles[0].setText(new CadenzaMaps.openLayers.style.text({
+      text: `${clusterSize}`,
+      font: 'bold 12px sans-serif',
+      fill: new CadenzaMaps.openLayers.style.fill({
+        color: '#fff',
+      }),
+    }));
+    return sldStyles;
+  }
   const clusterStyleFunction2 = await getSldFunctionFromSldString(SLD_STRINGS.cluster2);
   const defaultStyleFunction = await getSldFunctionFromSldString(SLD_STRINGS.default);
 
