@@ -6,14 +6,12 @@ const MAIN_FUNCTIONS = [
   'mainWithWmtsLayer', // 3
   'mainWithSld', // 4
   'mainCreateWgs84Point', // 5
-  'mainHerzogExample1', // 6
-  'mainAccessCurrentLocation', // 7
-  'mainHandleMapClick', // 8
-  'mainDownloadAndShowMapBackground', // 9
-  'mainDownloadAndShowMap', // 10
-  'mainHerzogExample1', // 11
-  'mainHerzogExample1WithClustering', // 12
-  'mainGetFeatureDataByClick', // 13
+  'mainHandleMapClick', // 6
+  'mainDownloadAndShowMapBackground', // 7
+  'mainDownloadAndShowMap', // 8
+  'mainHerzogExample1', // 9
+  'mainHerzogExample1WithClustering', // 10
+  'mainGetFeatureDataByClick', // 11
 ]
 const EXECUTE_MAIN = MAIN_FUNCTIONS[12]; // Change this to run a different example
 
@@ -409,7 +407,7 @@ const SLD_STRINGS = {
         </sld:UserStyle>
     </sld:NamedLayer>
 </sld:StyledLayerDescriptor>`,
-cluster3: `
+  cluster3: `
 <?xml version="1.0" encoding="UTF-8"?>
 <sld:StyledLayerDescriptor xmlns:sld="http://www.opengis.net/sld" xmlns="http://www.opengis.net/sld" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" version="1.0.0">
     <sld:NamedLayer>
@@ -1292,7 +1290,7 @@ const mainHerzogExample1WithClustering = async () => {
 
   /*************************************************************************************/
   /* TEST CODE TO ILLUSTRATE CLUSTERING OF REVIER_GRENZEN LAYER (TURNED OFF BY DEFAULT)*/
-  const illustrateClustering = false; 
+  const illustrateClustering = false;
   if (illustrateClustering) {
     // Add point geometries at 2 of the revierGrenze polygon's vertices to reach cluster threshold
     [
@@ -1583,9 +1581,6 @@ switch (EXECUTE_MAIN) {
     break;
   case 'mainDownloadAndShowMap':
     mainDownloadAndShowMap();
-    break;
-  case 'mainAccessCurrentLocation':
-    mainAccessCurrentLocation();
     break;
   case 'mainGetFeatureDataByClick':
     mainGetFeatureDataByClick();
