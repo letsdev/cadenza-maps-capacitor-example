@@ -1268,6 +1268,7 @@ const mainHerzogExample1WithClustering = async () => {
   };
 
   const revierGrenzenLayerConfigurationItem = LAYER_CONFIGURATION_ITEMS.feature;
+  revierGrenzenLayerConfigurationItem.layerConfiguration.id = 'reviergrenzen';
   revierGrenzenLayerConfigurationItem.layerConfiguration.title = 'Reviergrenzen';
 
   const revierGrenzenFeatureLayer = await featureLayerFactory.create({
@@ -1308,6 +1309,41 @@ const mainHerzogExample1WithClustering = async () => {
   /*************************************************************************************/
 
   map.addLayer(revierGrenzenFeatureLayer);
+
+
+  // Add feature layer with Streckenmeldungen point
+  const streckenmeldungenLayerConfigurationItem = LAYER_CONFIGURATION_ITEMS.feature;
+  streckenmeldungenLayerConfigurationItem.layerConfiguration.id = 'streckenmeldungen';
+  streckenmeldungenLayerConfigurationItem.layerConfiguration.title = 'Streckenmeldungen';
+
+  const streckenmeldungenFeatureLayer = await featureLayerFactory.create({
+    mapConfigurationItem: mapConfigurationItem,
+    layerConfigurationItem: {
+      ...streckenmeldungenLayerConfigurationItem,
+      mapId: mapConfigurationItem.id
+    },
+    hostingMap: map,
+    featureClusterOptions: featureClusterOptions,
+    defaultStyleFunction: defaultStyleFunction, // Here we need to provide a default style, since the layer has none
+    clusterStyleFunction: clusterStyleFunction2
+  });
+
+  const longLat = [511526, 5402248]
+  const point = new CadenzaMaps.openLayers.geometry.point(longLat)
+  const streckenmeldungenFeature = new GTM.GtmFeature(point)
+
+  streckenmeldungenFeatureLayer
+      .getSource() // First source is cluster source
+      .getSource() // ClusterSource's source is the actual vector source, where we need to add features
+      .addFeature(streckenmeldungenFeature.toOpenLayersFeature());
+
+  map.addLayer(streckenmeldungenFeatureLayer);
+
+  // Log all layers id's, see layerConfiguration reviergrenzen & streckenmeldungen
+  map.getAllLayers()
+      .forEach(layer => {
+        console.log('LAYER:', layer.layerConfiguration?.id, layer)
+      })
 
   setUpButtons({
     map: map,
