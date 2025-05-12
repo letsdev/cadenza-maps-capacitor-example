@@ -1267,7 +1267,7 @@ const mainHerzogExample1WithClustering = async () => {
     })['geom-geojson'])
   };
 
-  const revierGrenzenLayerConfigurationItem = LAYER_CONFIGURATION_ITEMS.feature;
+  const revierGrenzenLayerConfigurationItem = structuredClone(LAYER_CONFIGURATION_ITEMS.feature);
   revierGrenzenLayerConfigurationItem.layerConfiguration.id = 'reviergrenzen';
   revierGrenzenLayerConfigurationItem.layerConfiguration.title = 'Reviergrenzen';
 
@@ -1312,7 +1312,7 @@ const mainHerzogExample1WithClustering = async () => {
 
 
   // Add feature layer with Streckenmeldungen point
-  const streckenmeldungenLayerConfigurationItem = LAYER_CONFIGURATION_ITEMS.feature;
+  const streckenmeldungenLayerConfigurationItem = structuredClone(LAYER_CONFIGURATION_ITEMS.feature);
   streckenmeldungenLayerConfigurationItem.layerConfiguration.id = 'streckenmeldungen';
   streckenmeldungenLayerConfigurationItem.layerConfiguration.title = 'Streckenmeldungen';
 
