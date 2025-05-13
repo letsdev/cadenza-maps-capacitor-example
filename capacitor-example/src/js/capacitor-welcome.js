@@ -1142,6 +1142,27 @@ const mainHerzogExample1 = async () => {
     .getSource()
     .addFeature(revierGrenzenFeature.toOpenLayersFeature());
 
+  /*************************************************************************************/
+  /* TEST CODE TO ILLUSTRATE WORKAROUND FOR FEATURE STYLE */
+  /*************************************************************************************/
+  const useTestCode = false;
+  if (useTestCode) {
+    // Center to an area with features, and zoom to visible resolution
+    map.getView().setCenter([506835.544758495, 5407102.885273242]);
+    map.getView().setZoom(6.3);
+
+    const includeWorkaround = true;
+    if (includeWorkaround) {
+      // Trigger a rerender, once the layer has been rendered the first time.
+      const rettungstreffpunkteLayer = map.getAllLayers().find(it => it.layerConfiguration?.id == 'rettungstreffpunkte');
+      rettungstreffpunkteLayer.once('postrender', () => {
+        rettungstreffpunkteLayer.changed();
+      });
+    }
+  }
+  /*************************************************************************************/
+  /*************************************************************************************/
+
   setUpButtons({
     map: map,
     featureSource: map
