@@ -1,4 +1,3 @@
-// One of: 'main' | 'mainWithDownloadCancel' | 'mainWithClusteredFeatures' | 'mainWithWmtsLayer' | 'mainWithSld' | 'mainCreateWgs84Point' | 'mainHerzogExample1' | 'mainAccessCurrentLocation' | 'mainHandleMapClick' | 'mainDownloadAndShowMapBackground' | 'mainDownloadAndShowMap' | 'mainHerzogExample1WithClustering'
 const MAIN_FUNCTIONS = [
   'main', // 0 
   'mainWithDownloadCancel', // 1
@@ -12,8 +11,9 @@ const MAIN_FUNCTIONS = [
   'mainHerzogExample1', // 9
   'mainHerzogExample1WithClustering', // 10
   'mainGetFeatureDataByClick', // 11
+  'mainWmtsWithCapabilities', // 12
 ]
-const EXECUTE_MAIN = MAIN_FUNCTIONS[10]; // Change this to run a different example
+const EXECUTE_MAIN = MAIN_FUNCTIONS[12]; // Change this to run a different example
 
 const MAP_DESCRIPTIONS = {
   largeMap: {
@@ -93,6 +93,24 @@ const MAP_DESCRIPTIONS = {
             1.19432856695588,
             0.597164283477939
           ],
+          "cmmapVersion": "1.1.0"
+        }
+      }, "layerList": {
+        "layer": []
+      }
+    }
+  },
+  emptyMapWithMissingConfig: {
+    "id": "test",
+    "baseURI": '',
+    "mapConfiguration": {
+      "id": "test",
+      "general": {
+        "boundingBox": null, // Needs to be set
+        "title": "Test Map",
+        "extension": {
+          "maxResolution": null, // Needs to be set
+          "resolutions": null, // Needs to be set
           "cmmapVersion": "1.1.0"
         }
       }, "layerList": {
@@ -214,7 +232,7 @@ const MAP_DESCRIPTIONS = {
 }
 
 const LAYER_CONFIGURATION_ITEMS = {
-  wmts: {
+  wmtsTopPlusOpen: {
     id: 'test_layer',
     baseURI: null,
     mapId: 'test',
@@ -294,6 +312,27 @@ const LAYER_CONFIGURATION_ITEMS = {
         "geometryEditable": false,
         "sphericalMercator": false,
         "wrapDateLine": false
+      }
+    }
+  },
+  wmtsOrthophotos: {
+    id: 'test_layer',
+    mapId: 'test',
+    layerConfiguration: {
+      "id": "test",
+      "server": {
+        "service": "OGC:WMTS",
+        "onlineResource": {
+          "href": "https://owsproxy.lgl-bw.de/owsproxy/ows/WMTS_LGL-BW_ATKIS_DOP_20_C?SERVICE=WMTS&REQUEST=GetCapabilities" // Capabilities url
+        }
+      },
+      "name": "DOP_20_C", // Identifier of the layer as per capabilities xml
+      "title": "Ortophotos",
+      "extension": {
+        "requestEncoding": "REST",
+        "matrixSet": "INSPIRE_4258_Quad", // Identifier of the matrix set as per capabilities xml
+        "serverResolutions": null, // Needs to be set 
+        "matrixIds": null, // Needs to be set
       }
     }
   },
@@ -983,7 +1022,7 @@ const mainWithWmtsLayer = async () => {
   const wmtsLayerFactory = new window.CadenzaMaps.layer.factory.wmts();
   const wmtsLayer = await wmtsLayerFactory.create({
     mapConfigurationItem: MAP_DESCRIPTIONS.emptyMap,
-    layerConfigurationItem: LAYER_CONFIGURATION_ITEMS.wmts,
+    layerConfigurationItem: LAYER_CONFIGURATION_ITEMS.wmtsTopPlusOpen,
     hostingMap: map
   });
 
@@ -1059,7 +1098,7 @@ const mainHerzogExample1 = async () => {
   const wmtsLayerFactory = new window.CadenzaMaps.layer.factory.wmts();
   const wmtsLayer = await wmtsLayerFactory.create({
     mapConfigurationItem: mapConfigurationItem,
-    layerConfigurationItem: LAYER_CONFIGURATION_ITEMS.wmts,
+    layerConfigurationItem: LAYER_CONFIGURATION_ITEMS.wmtsTopPlusOpen,
     hostingMap: map
   });
 
@@ -1142,6 +1181,27 @@ const mainHerzogExample1 = async () => {
     .getSource()
     .addFeature(revierGrenzenFeature.toOpenLayersFeature());
 
+  /*************************************************************************************/
+  /* TEST CODE TO ILLUSTRATE WORKAROUND FOR FEATURE STYLE */
+  /*************************************************************************************/
+  const useTestCode = false;
+  if (useTestCode) {
+    // Center to an area with features, and zoom to visible resolution
+    map.getView().setCenter([506835.544758495, 5407102.885273242]);
+    map.getView().setZoom(6.3);
+
+    const includeWorkaround = true;
+    if (includeWorkaround) {
+      // Trigger a rerender, once the layer has been rendered the first time.
+      const rettungstreffpunkteLayer = map.getAllLayers().find(it => it.layerConfiguration?.id == 'rettungstreffpunkte');
+      rettungstreffpunkteLayer.once('postrender', () => {
+        rettungstreffpunkteLayer.changed();
+      });
+    }
+  }
+  /*************************************************************************************/
+  /*************************************************************************************/
+
   setUpButtons({
     map: map,
     featureSource: map
@@ -1165,7 +1225,7 @@ const mainHerzogExample1WithClustering = async () => {
   const wmtsLayerFactory = new window.CadenzaMaps.layer.factory.wmts();
   const wmtsLayer = await wmtsLayerFactory.create({
     mapConfigurationItem: mapConfigurationItem,
-    layerConfigurationItem: LAYER_CONFIGURATION_ITEMS.wmts,
+    layerConfigurationItem: LAYER_CONFIGURATION_ITEMS.wmtsTopPlusOpen,
     hostingMap: map
   });
 
@@ -1465,7 +1525,7 @@ const mainGetFeatureDataByClick = async () => {
   const wmtsLayerFactory = new window.CadenzaMaps.layer.factory.wmts();
   const wmtsLayer = await wmtsLayerFactory.create({
     mapConfigurationItem: mapConfigurationItem,
-    layerConfigurationItem: LAYER_CONFIGURATION_ITEMS.wmts,
+    layerConfigurationItem: LAYER_CONFIGURATION_ITEMS.wmtsTopPlusOpen,
     hostingMap: map
   });
 
@@ -1548,6 +1608,65 @@ const mainGetFeatureDataByClick = async () => {
   });
 }
 
+const mainWmtsWithCapabilities = async () => {
+  const services = await setUpCadenzaMapsAndGetMapFactory();
+  const mapFactory = services.mapViewFactory;
+  const gtmMapFactory = mapFactory.getGtmMapFactory();
+
+  // These config items are unfinished and will be completed using the capabilities information.
+  const mapConfigItem = MAP_DESCRIPTIONS.emptyMapWithMissingConfig;
+  const layerConfigItem = LAYER_CONFIGURATION_ITEMS.wmtsOrthophotos;
+
+  // Get wmts source options from capabilities
+  const wmtsSourceOptions = await window.CadenzaMaps.layer.wmts.getSourceOptionsByCapabilitiesUrl({
+    capabilitiesUrl: layerConfigItem.layerConfiguration.server.onlineResource.href,
+    layerIdentifier: layerConfigItem.layerConfiguration.name,
+    matrixSetIdentifier: layerConfigItem.layerConfiguration.extension.matrixSet,
+  });
+
+  // These are the necessary data points from the parsed capabilities
+  const projectionCode = wmtsSourceOptions.projection.getCode();
+  const extent = wmtsSourceOptions.tileGrid.getExtent();
+  const resolutions = wmtsSourceOptions.tileGrid.getResolutions();
+  const matrixIds = wmtsSourceOptions.tileGrid.getMatrixIds();
+
+  //Adjust map config and create map
+  mapConfigItem.mapConfiguration.general.boundingBox = {
+    srs: projectionCode,
+    minx: extent[0],
+    miny: extent[1],
+    maxx: extent[2],
+    maxy: extent[3]
+  };
+  mapConfigItem.mapConfiguration.general.extension.resolutions = resolutions;
+  mapConfigItem.mapConfiguration.general.extension.maxResolution = resolutions[0];
+  const map = await gtmMapFactory.create(mapConfigItem, 'map');
+
+  // Adjust layer config and add layer
+  layerConfigItem.layerConfiguration.extension.serverResolutions = resolutions;
+  layerConfigItem.layerConfiguration.extension.matrixIds = matrixIds;
+  const wmtsLayerFactory = new window.CadenzaMaps.layer.factory.wmts();
+  const wmtsLayer = await wmtsLayerFactory.create({
+    mapConfigurationItem: mapConfigItem,
+    layerConfigurationItem: layerConfigItem,
+    hostingMap: map,
+  });
+
+  map.addLayer(wmtsLayer);
+
+  // Adjust view so we can see the layer properly.
+  map.getView().setCenter([279.1521062363618, -220.89531655880182]);
+  map.getView().setZoom(6);
+
+  setUpButtons({
+    map: map,
+    featureSource: map
+      .getAllLayers()
+      .find(it => it.layerConfiguration?.id === 'NOTES')
+      .getSource()
+  });
+}
+
 switch (EXECUTE_MAIN) {
   case 'main':
     main();
@@ -1584,5 +1703,8 @@ switch (EXECUTE_MAIN) {
     break;
   case 'mainGetFeatureDataByClick':
     mainGetFeatureDataByClick();
+    break;
+  case 'mainWmtsWithCapabilities':
+    mainWmtsWithCapabilities();
     break;
 }
