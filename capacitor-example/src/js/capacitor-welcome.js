@@ -12,8 +12,9 @@ const MAIN_FUNCTIONS = [
   'mainHerzogExample1WithClustering', // 10
   'mainGetFeatureDataByClick', // 11
   'mainWmtsWithCapabilities', // 12
-]
-const EXECUTE_MAIN = MAIN_FUNCTIONS[12]; // Change this to run a different example
+  'mainEditFeature', // 13
+];
+const EXECUTE_MAIN = MAIN_FUNCTIONS[13]; // Change this to run a different example
 
 const MAP_DESCRIPTIONS = {
   largeMap: {
@@ -1667,6 +1668,118 @@ const mainWmtsWithCapabilities = async () => {
   });
 }
 
+const mainEditFeature = async () => {
+  const services = await setUpCadenzaMapsAndGetMapFactory();
+  const mapFactory = services.mapViewFactory;
+  const gtmMapFactory = mapFactory.getGtmMapFactory();
+  const map = await gtmMapFactory.create(MAP_DESCRIPTIONS.osm, 'map');
+
+  setUpButtons({
+    map: map,
+    featureSource: map
+      .getAllLayers()
+      .find(it => it.layerConfiguration?.id === 'NOTES')
+      .getSource()
+  });
+
+  const notesLayer = map.getAllLayers().find((it) => it.layerConfiguration?.id === 'NOTES');
+  const editGeometryLayer = map.getEditGeometryLayer();
+  editGeometryLayer.setValidGeometryTypes(['Point', 'LineString', 'Polygon']);
+
+  let isEdit = false;
+  let editingFeature = null;
+  // 0 - Update save button logic
+  document.getElementById('btn_save').addEventListener('click', () => {
+    if (isEdit) {
+      notesLayer.source.removeFeature(editingFeature);
+      isEdit = false;
+      editingFeature = null;
+    }
+  });
+  ////
+
+  // 1 - Create polygon features
+  const createPolygonFeature = (coords) => {
+    const wgs84Polygon = new CadenzaMaps.openLayers.geometry.polygon([coords]);
+    const sourceProjectionCode = 'EPSG:4326';
+    const targetProjectionCode = map.getView().getProjection().getCode();
+    wgs84Polygon.transform(sourceProjectionCode, targetProjectionCode);
+    const feature = new GTM.GtmFeature(wgs84Polygon);
+    feature.properties.NOTESTYLE = 'orange';
+    const olFeature = feature.toOpenLayersFeature();
+
+    notesLayer.getSource().addFeature(olFeature);
+  };
+  createPolygonFeature([
+    [-122.0, 72.0],
+    [-51.0, 72.0],
+    [-51.0, 31.0],
+    [-122.0, 31.0],
+  ]);
+  createPolygonFeature([
+    [19.0, 72.0],
+    [100.0, 72.0],
+    [100.0, 31.0],
+    [19.0, 31.0],
+  ]);
+  /////////////////////////////////
+
+  // 2 - Hook into long press and fetch features at click location
+  map.onLongPress(async (evt) => {
+    const clickCoordinate = evt.coordinate;
+
+    const boundingBox = {
+      minx: clickCoordinate[0],
+      miny: clickCoordinate[1],
+      maxx: clickCoordinate[0],
+      maxy: clickCoordinate[1],
+    };
+
+    const clickedFeatures = notesLayer.source.getFeaturesInExtent([boundingBox.minx, boundingBox.miny, boundingBox.maxx, boundingBox.maxy])
+    if (clickedFeatures.length > 0) {
+      document.getElementById('btn_draw').click(); // Display the edit buttons
+
+      const clickedFeature = clickedFeatures[0];
+      isEdit = true;
+      editingFeature = clickedFeature;
+      drawWithExistingGeometry(clickedFeature.getGeometry());
+    }
+  });
+  /////////////////////////////////
+
+  // 3 - Edit feature geometry
+  const drawWithExistingGeometry = (geometry) => {
+    const drawOptions = {
+      type: null,
+      coordinates: null,
+      maxPoints: 100,
+    };
+
+    const coordinates = geometry.getCoordinates();
+    const geometryType = geometry.getType();
+    if (geometryType === 'Point') {
+      drawOptions.coordinates = [coordinates];
+    } else if (geometryType === 'Polygon') {
+      drawOptions.coordinates = coordinates[0];
+    } else {
+      drawOptions.coordinates = coordinates;
+    }
+    drawOptions.type = geometryType;
+
+    editGeometryLayer.startDrawing(drawOptions);
+
+    editGeometryLayer.onGeometryChanged((evt) => {
+      console.log(evt);
+    });
+
+    editGeometryLayer.onMaxPointsExceeded((evt) => {
+      console.log(evt);
+    });
+  }
+  /////////////////////////////////
+};
+
+console.log('Running main function: ' + EXECUTE_MAIN);
 switch (EXECUTE_MAIN) {
   case 'main':
     main();
@@ -1706,5 +1819,8 @@ switch (EXECUTE_MAIN) {
     break;
   case 'mainWmtsWithCapabilities':
     mainWmtsWithCapabilities();
+    break;
+  case 'mainEditFeature':
+    mainEditFeature();
     break;
 }
