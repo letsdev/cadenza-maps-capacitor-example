@@ -13,8 +13,9 @@ const MAIN_FUNCTIONS = [
   'mainGetFeatureDataByClick', // 11
   'mainWmtsWithCapabilities', // 12
   'mainEditFeature', // 13
+  'mainEditFeatureClustered', // 14
 ];
-const EXECUTE_MAIN = MAIN_FUNCTIONS[13]; // Change this to run a different example
+const EXECUTE_MAIN = MAIN_FUNCTIONS[14]; // Change this to run a different example
 
 const MAP_DESCRIPTIONS = {
   largeMap: {
@@ -1788,6 +1789,139 @@ const mainEditFeature = async () => {
   /////////////////////////////////
 };
 
+const mainEditFeatureClustered = async () => {
+  const services = await setUpCadenzaMapsAndGetMapFactory();
+  const mapFactory = services.mapViewFactory;
+  const gtmMapFactory = mapFactory.getGtmMapFactory();
+  const map = await gtmMapFactory.create(MAP_DESCRIPTIONS.osm, 'map');
+
+  const editGeometryLayer = map.getEditGeometryLayer();
+  editGeometryLayer.setValidGeometryTypes(['Point', 'LineString', 'Polygon']);
+
+  const featureLayerFactory = new window.CadenzaMaps.layer.factory.feature();
+  const featureClusterOptions = {
+    distance: 20,
+    threshold: 3
+  };
+
+  const clusterStyleFunction = await getSldFunctionFromSldString(SLD_STRINGS.cluster);
+  const defaultStyleFunction = await getSldFunctionFromSldString(SLD_STRINGS.default);
+
+  const clusteredFeatureLayer = await featureLayerFactory.create({
+    mapConfigurationItem: MAP_DESCRIPTIONS.osm,
+    layerConfigurationItem: LAYER_CONFIGURATION_ITEMS.feature,
+    hostingMap: map,
+    featureClusterOptions: featureClusterOptions,
+    defaultStyleFunction: defaultStyleFunction,
+    clusterStyleFunction: clusterStyleFunction
+  });
+
+  map.addLayer(clusteredFeatureLayer);
+
+  let isEdit = false;
+  let editingFeature = null;
+  document.getElementById('btn_save').addEventListener('click', () => {
+    if (isEdit) {
+      clusteredFeatureLayer.getSource().getSource().removeFeature(editingFeature);
+      isEdit = false;
+      editingFeature = null;
+    }
+  });
+
+  const createPolygonFeature = (coords) => {
+    const wgs84Polygon = new CadenzaMaps.openLayers.geometry.polygon([coords]);
+    const sourceProjectionCode = 'EPSG:4326';
+    const targetProjectionCode = map.getView().getProjection().getCode();
+    wgs84Polygon.transform(sourceProjectionCode, targetProjectionCode);
+    const feature = new GTM.GtmFeature(wgs84Polygon);
+    feature.properties.NOTESTYLE = 'orange';
+    const olFeature = feature.toOpenLayersFeature();
+
+    clusteredFeatureLayer.getSource().getSource().addFeature(olFeature);
+  };
+  createPolygonFeature([
+    [-122.0, 72.0],
+    [-51.0, 72.0],
+    [-51.0, 31.0],
+    [-122.0, 31.0],
+  ]);
+  createPolygonFeature([
+    [-88.0, 77.0],
+    [-41.0, 55.0],
+    [-88.0, 15.0],
+    [-132.0, 55.0],
+  ]);
+
+  map.onLongPress(async (evt) => {
+    const clickCoordinate = evt.coordinate;
+
+    // Calculate click tolerance
+    const clickToleranceInPixels = 6;
+    const clickTolerance = map.getPixelDistanceInProjection(clickToleranceInPixels);
+    const boundingBox = {
+      minx: clickCoordinate[0] - clickTolerance,
+      miny: clickCoordinate[1] - clickTolerance,
+      maxx: clickCoordinate[0] + clickTolerance,
+      maxy: clickCoordinate[1] + clickTolerance,
+    };
+
+    const clusterSource = clusteredFeatureLayer.getSource();
+    const clickedClusters = clusterSource.getFeaturesInExtent([
+      boundingBox.minx,
+      boundingBox.miny,
+      boundingBox.maxx,
+      boundingBox.maxy
+    ]);
+
+    // Filter out features that are part of a cluster and therefore not displayed in the map outside of a cluster
+    const nonClusteredFeatures = clickedClusters.filter((clusterFeature) => clusterFeature.get('features').length === 1);
+    if (nonClusteredFeatures.length > 0) {
+      document.getElementById('btn_draw').click(); // Display the edit buttons
+
+      // We're using the first at the clicked location, more sophisticated behaviour needs to be implemented by the client.
+      const clickedFeature = nonClusteredFeatures[0].get('features')[0];
+      isEdit = true;
+      editingFeature = clickedFeature;
+      drawWithExistingGeometry(clickedFeature.getGeometry());
+    }
+  });
+
+  const drawWithExistingGeometry = (geometry) => {
+    const drawOptions = {
+      type: null,
+      coordinates: null,
+      maxPoints: 100,
+    };
+
+    const coordinates = geometry.getCoordinates();
+    const geometryType = geometry.getType();
+    if (geometryType === 'Point') {
+      drawOptions.coordinates = [coordinates];
+    } else if (geometryType === 'Polygon') {
+      drawOptions.coordinates = coordinates[0];
+    } else {
+      drawOptions.coordinates = coordinates;
+    }
+    drawOptions.type = geometryType;
+
+    editGeometryLayer.stopDrawing();
+    editGeometryLayer.startDrawing(drawOptions);
+
+    editGeometryLayer.onGeometryChanged(() => {
+      console.log('Geometry has changed.');
+    });
+
+    editGeometryLayer.onMaxPointsExceeded((evt) => {
+      console.log(evt);
+    });
+  }
+
+  setUpButtons({
+    map: map,
+    featureSource: clusteredFeatureLayer.getSource().getSource() // Add to ClusterSource's source
+  });
+};
+
 console.log('Running main function: ' + EXECUTE_MAIN);
 switch (EXECUTE_MAIN) {
   case 'main':
@@ -1831,5 +1965,8 @@ switch (EXECUTE_MAIN) {
     break;
   case 'mainEditFeature':
     mainEditFeature();
+    break;
+  case 'mainEditFeatureClustered':
+    mainEditFeatureClustered();
     break;
 }
