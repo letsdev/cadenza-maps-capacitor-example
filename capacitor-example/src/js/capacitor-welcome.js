@@ -938,7 +938,6 @@ const main = async () => {
 }
 
 const mainWithClusteredFeatures = async () => {
-
   const services = await setUpCadenzaMapsAndGetMapFactory();
   const mapFactory = services.mapViewFactory;
   const gtmMapFactory = mapFactory.getGtmMapFactory();
@@ -1728,17 +1727,26 @@ const mainEditFeature = async () => {
   map.onLongPress(async (evt) => {
     const clickCoordinate = evt.coordinate;
 
+    // Calculate click tolerance
+    const clickToleranceInPixels = 12;
+    const clickTolerance = map.getPixelDistanceInProjection(clickToleranceInPixels);
     const boundingBox = {
-      minx: clickCoordinate[0],
-      miny: clickCoordinate[1],
-      maxx: clickCoordinate[0],
-      maxy: clickCoordinate[1],
+      minx: clickCoordinate[0] - clickTolerance,
+      miny: clickCoordinate[1] - clickTolerance,
+      maxx: clickCoordinate[0] + clickTolerance,
+      maxy: clickCoordinate[1] + clickTolerance,
     };
 
-    const clickedFeatures = notesLayer.source.getFeaturesInExtent([boundingBox.minx, boundingBox.miny, boundingBox.maxx, boundingBox.maxy])
+    const clickedFeatures = notesLayer.source.getFeaturesInExtent([
+      boundingBox.minx,
+      boundingBox.miny,
+      boundingBox.maxx,
+      boundingBox.maxy
+    ]);
     if (clickedFeatures.length > 0) {
       document.getElementById('btn_draw').click(); // Display the edit buttons
 
+      // We're using the first at the clicked location, more sophisticated behaviour needs to be implemented by the client.
       const clickedFeature = clickedFeatures[0];
       isEdit = true;
       editingFeature = clickedFeature;
@@ -1766,10 +1774,11 @@ const mainEditFeature = async () => {
     }
     drawOptions.type = geometryType;
 
+    editGeometryLayer.stopDrawing();
     editGeometryLayer.startDrawing(drawOptions);
 
-    editGeometryLayer.onGeometryChanged((evt) => {
-      console.log(evt);
+    editGeometryLayer.onGeometryChanged(() => {
+      console.log('Geometry has changed.');
     });
 
     editGeometryLayer.onMaxPointsExceeded((evt) => {
