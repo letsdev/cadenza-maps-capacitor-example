@@ -1907,9 +1907,21 @@ const mainEditFeatureClustered = async () => {
 
     // Filter out features that are part of a cluster and therefore not displayed in the map outside of a cluster
     const nonClusteredFeatures = clickedFeatures.filter((clickedFeature) => {
-      const clustersInExtent = clusterSource.getFeaturesInExtent(clickedFeature.getGeometry().getExtent());
+      // Get cluster feature candidates that the clickedFeature might be included in
+      const extent = clickedFeature.getGeometry().getType() === 'Point'
+        ? [
+          clickedFeature.getGeometry().getExtent()[0] - clickTolerance,
+          clickedFeature.getGeometry().getExtent()[1] - clickTolerance,
+          clickedFeature.getGeometry().getExtent()[2] + clickTolerance,
+          clickedFeature.getGeometry().getExtent()[3] + clickTolerance,
+        ]
+        : clickedFeature.getGeometry().getExtent();
+      const clustersInExtent = clusterSource.getFeaturesInExtent(extent);
+
+      // Filter out the clicked features that are contained in a cluster with at least the threshold amount of features
       return !clustersInExtent.find((clusterInExtent) => {
         const clusterFeatures = clusterInExtent.get('features');
+        // Cluster is displayed as cluster (has >= threshold features) AND contains the clicked feature)
         return clusterFeatures.length >= featureClusterOptions.threshold
           && !!clusterFeatures.find((clusterFeature) => clusterFeature.ol_uid === clickedFeature.ol_uid);
       });
