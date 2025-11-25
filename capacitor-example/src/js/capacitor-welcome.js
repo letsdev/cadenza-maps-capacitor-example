@@ -1688,13 +1688,18 @@ const mainEditFeature = async () => {
 
   let isEdit = false;
   let editingFeature = null;
-  // 0 - Update save button logic
+  // 0 - Update save and cancel button logic
   document.getElementById('btn_save').addEventListener('click', () => {
     if (isEdit) {
-      notesLayer.source.removeFeature(editingFeature);
-      isEdit = false;
-      editingFeature = null;
+      clusteredFeatureLayer.getSource().getSource().removeFeature(editingFeature);
     }
+    isEdit = false;
+    editingFeature = null;
+  });
+
+  document.getElementById('btn_cancel').addEventListener('click', () => {
+    isEdit = false;
+    editingFeature = null;
   });
   ////
 
@@ -1823,9 +1828,14 @@ const mainEditFeatureClustered = async () => {
   document.getElementById('btn_save').addEventListener('click', () => {
     if (isEdit) {
       clusteredFeatureLayer.getSource().getSource().removeFeature(editingFeature);
-      isEdit = false;
-      editingFeature = null;
     }
+    isEdit = false;
+    editingFeature = null;
+  });
+
+  document.getElementById('btn_cancel').addEventListener('click', () => {
+    isEdit = false;
+    editingFeature = null;
   });
 
   const createPolygonFeature = (coords) => {
@@ -1839,11 +1849,18 @@ const mainEditFeatureClustered = async () => {
 
     clusteredFeatureLayer.getSource().getSource().addFeature(olFeature);
   };
+  // 3x for cluster
   createPolygonFeature([
     [-122.0, 72.0],
     [-51.0, 72.0],
     [-51.0, 31.0],
     [-122.0, 31.0],
+  ]);
+  createPolygonFeature([
+    [-112.0, 62.0],
+    [-41.0, 62.0],
+    [-41.0, 21.0],
+    [-112.0, 21.0],
   ]);
   createPolygonFeature([
     [-88.0, 77.0],
@@ -1852,11 +1869,25 @@ const mainEditFeatureClustered = async () => {
     [-132.0, 55.0],
   ]);
 
+  // 2x not clustered
+  createPolygonFeature([
+    [-122.0 + 150, 72.0],
+    [-51.0 + 150, 72.0],
+    [-51.0 + 150, 31.0],
+    [-122.0 + 150, 31.0],
+  ]);
+  createPolygonFeature([
+    [-88.0 + 150, 77.0],
+    [-41.0 + 150, 55.0],
+    [-88.0 + 150, 15.0],
+    [-132.0 + 150, 55.0],
+  ]);
+
   map.onLongPress(async (evt) => {
     const clickCoordinate = evt.coordinate;
 
     // Calculate click tolerance
-    const clickToleranceInPixels = 6;
+    const clickToleranceInPixels = 12;
     const clickTolerance = map.getPixelDistanceInProjection(clickToleranceInPixels);
     const boundingBox = {
       minx: clickCoordinate[0] - clickTolerance,
@@ -1866,7 +1897,8 @@ const mainEditFeatureClustered = async () => {
     };
 
     const clusterSource = clusteredFeatureLayer.getSource();
-    const clickedClusters = clusterSource.getFeaturesInExtent([
+    const vectorSource = clusterSource.getSource();
+    const clickedFeatures = vectorSource.getFeaturesInExtent([
       boundingBox.minx,
       boundingBox.miny,
       boundingBox.maxx,
@@ -1874,12 +1906,20 @@ const mainEditFeatureClustered = async () => {
     ]);
 
     // Filter out features that are part of a cluster and therefore not displayed in the map outside of a cluster
-    const nonClusteredFeatures = clickedClusters.filter((clusterFeature) => clusterFeature.get('features').length === 1);
+    const nonClusteredFeatures = clickedFeatures.filter((clickedFeature) => {
+      const clustersInExtent = clusterSource.getFeaturesInExtent(clickedFeature.getGeometry().getExtent());
+      return !clustersInExtent.find((clusterInExtent) => {
+        const clusterFeatures = clusterInExtent.get('features');
+        return clusterFeatures.length >= featureClusterOptions.threshold
+          && !!clusterFeatures.find((clusterFeature) => clusterFeature.ol_uid === clickedFeature.ol_uid);
+      });
+    });
+
     if (nonClusteredFeatures.length > 0) {
       document.getElementById('btn_draw').click(); // Display the edit buttons
 
       // We're using the first at the clicked location, more sophisticated behaviour needs to be implemented by the client.
-      const clickedFeature = nonClusteredFeatures[0].get('features')[0];
+      const clickedFeature = nonClusteredFeatures[0];
       isEdit = true;
       editingFeature = clickedFeature;
       drawWithExistingGeometry(clickedFeature.getGeometry());
