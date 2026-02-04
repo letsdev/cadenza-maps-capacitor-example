@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - aligned to 16 kb page size [LETSDEV-662](https://jira.disy.net/browse/LETSDEV-662)
 
+### Fixed
+- Fixed feature edit example [LETSDEV-672](https://jira.disy.net/browse/LETSDEV-672)
+
 ## [0.7.1] - 2025-11-25
 ### CHANGED
 - example for creating and updating geometries within cluster layer
