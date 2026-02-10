@@ -1686,16 +1686,16 @@ const mainEditFeature = async () => {
   const editGeometryLayer = map.getEditGeometryLayer();
   editGeometryLayer.setValidGeometryTypes(['Point', 'LineString', 'Polygon']);
 
-  let isEdit = false;
-  let editingFeature = null;
-  // 0 - Update save and cancel button logic
-  document.getElementById('btn_save').addEventListener('click', () => {
-    if (isEdit) {
-      clusteredFeatureLayer.getSource().getSource().removeFeature(editingFeature);
-    }
-    isEdit = false;
-    editingFeature = null;
-  });
+    let isEdit = false;
+    let editingFeature = null;
+    // 0 - Update save and cancel button logic
+    document.getElementById('btn_save').addEventListener('click', () => {
+        if (isEdit) {
+            notesLayer.getSource().removeFeature(editingFeature);
+        }
+        isEdit = false;
+        editingFeature = null;
+    });
 
   document.getElementById('btn_cancel').addEventListener('click', () => {
     isEdit = false;
