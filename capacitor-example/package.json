@@ -32,7 +32,7 @@
     "cordova-plugin-file": "8.0.0",
     "cordova-plugin-file-transfer": "github:letsdev/cordova-plugin-file-transfer#1.8.0",
     "cordova-spatialite-storage": "github:letsdev/Cordova-spatialite-storage#1.5.0",
-    "net.disy.cm.AppPlugin": "github:letsdev/cordova-plugin-cadenza-maps-app#1.0.3",
+    "net.disy.cm.AppPlugin": "github:letsdev/cordova-plugin-cadenza-maps-app#1.0.4",
     "net.disy.cm.zip": "github:letsdev/cordova-plugin-cadenza-maps-zip#1.0.5"
   },
   "devDependencies": {
