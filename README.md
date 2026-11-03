@@ -3,7 +3,6 @@
 Setup:
 - place cadenza-maps.js (use artefact cadenza-maps-capacitor:3.10.1) under src/lib/cadenza-maps
 - add GIS 2go server credentials to .env.local file
-- in Xcode project > Targets > CordovaPlugins > Build Phases > Compile Sources: set compiler flag for CDVFile.m and CDVFileTransfer.m to "-fno-objc-arc" 
 - run "coldStartAndroid" or "coldStartIos"
 
 Content:

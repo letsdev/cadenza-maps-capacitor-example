@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- removed the manual "-fno-objc-arc" Xcode step from the setup: net.disy.cm.zip 1.1.0 compiles with ARC, so Capacitor no longer applies the flag to the whole CordovaPlugins pod
+
 ## [0.8.0] - 2026-02-10
 ### Added
 - aligned to 16 kb page size [LETSDEV-662](https://jira.disy.net/browse/LETSDEV-662)
