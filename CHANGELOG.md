@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.8.1] - 2026-11-03
 ### Changed
 - switched to cordova-spatialite-storage 1.6.0: the iOS third-party libraries are xcframeworks with device and simulator slices, so iOS simulator builds on Apple Silicon work without excluding arm64 [LETSDEV-721](https://jira.disy.net/browse/LETSDEV-721)
 - switched to net.disy.cm.zip 1.1.0 [LETSDEV-721](https://jira.disy.net/browse/LETSDEV-721)
