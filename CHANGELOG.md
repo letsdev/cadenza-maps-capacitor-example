@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- removed the manual "-fno-objc-arc" Xcode step from the setup: net.disy.cm.zip 1.1.0 compiles with ARC, so Capacitor no longer applies the flag to the whole CordovaPlugins pod
+- switched to cordova-spatialite-storage 1.6.0: the iOS third-party libraries are xcframeworks with device and simulator slices, so iOS simulator builds on Apple Silicon work without excluding arm64 [LETSDEV-721](https://jira.disy.net/browse/LETSDEV-721)
+- switched to net.disy.cm.zip 1.1.0 [LETSDEV-721](https://jira.disy.net/browse/LETSDEV-721)
+- removed the manual "-fno-objc-arc" Xcode step from the setup: net.disy.cm.zip 1.1.0 compiles with ARC, so Capacitor no longer applies the flag to the whole CordovaPlugins pod [LETSDEV-721](https://jira.disy.net/browse/LETSDEV-721)
 
 ## [0.8.0] - 2026-02-10
 ### Added

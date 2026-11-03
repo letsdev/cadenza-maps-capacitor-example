@@ -31,9 +31,9 @@
     "cordova-plugin-device": "2.1.0",
     "cordova-plugin-file": "8.0.0",
     "cordova-plugin-file-transfer": "github:letsdev/cordova-plugin-file-transfer#1.8.0",
-    "cordova-spatialite-storage": "github:letsdev/Cordova-spatialite-storage#1.5.1",
+    "cordova-spatialite-storage": "github:letsdev/Cordova-spatialite-storage#1.6.0",
     "net.disy.cm.AppPlugin": "github:letsdev/cordova-plugin-cadenza-maps-app#1.0.4",
-    "net.disy.cm.zip": "github:letsdev/cordova-plugin-cadenza-maps-zip#1.0.5"
+    "net.disy.cm.zip": "github:letsdev/cordova-plugin-cadenza-maps-zip#1.1.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^6.1.2",
