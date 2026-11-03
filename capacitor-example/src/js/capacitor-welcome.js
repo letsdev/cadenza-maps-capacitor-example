@@ -1478,8 +1478,19 @@ const mainDownloadAndShowMap = async () => {
 
   // Find example app in downloadable maps descriptions
   const downloadableMaps = await mapRepository.getDownloadableMaps();
+  console.log('Downloadable maps:', downloadableMaps.map((m) => `${m.id}: ${m.title} (${m.size} bytes)`));
   const exampleId = 'download15807'; // map with tile layer, randomly picked from mobile server
-  const downloadableMapDescription = downloadableMaps.find((map) => map.id === exampleId);
+  const downloadableMapDescription = downloadableMaps.find((map) => map.id === exampleId)
+    // Fallback: the hardcoded id is gone from the server, take the smallest downloadable map instead
+    ?? downloadableMaps
+      .filter((map) => map.isDownloadable)
+      .sort((a, b) => (a.size ?? Infinity) - (b.size ?? Infinity))[0];
+  if (!downloadableMapDescription) {
+    alert('No downloadable maps available on the mobile server.');
+    return;
+  }
+  const mapId = downloadableMapDescription.id;
+  console.log(`Downloading map ${mapId}: ${downloadableMapDescription.title}`);
 
   const onProgress = (evt) => console.log(evt.progress);
   await mapRepository.downloadMap(
@@ -1492,24 +1503,28 @@ const mainDownloadAndShowMap = async () => {
   );
 
   // Verify succesful download
-  const hasMap = await mapRepository.hasMap(exampleId);
+  const hasMap = await mapRepository.hasMap(mapId);
   if (!hasMap) {
     alert('Offline map not available, something went wrong.');
   }
 
   await mapView.showMapWithId({
-    mapId: exampleId
+    mapId: mapId
   });
 
   const map = mapView.getOpenLayersMap();
 
-  setUpButtons({
-    map: map,
-    featureSource: map
-      .getAllLayers()
-      .find(it => it.layerConfiguration?.id === 'NOTES')
-      .getSource()
-  });
+  const notesLayer = map
+    .getAllLayers()
+    .find(it => it.layerConfiguration?.id === 'NOTES');
+  if (notesLayer) {
+    setUpButtons({
+      map: map,
+      featureSource: notesLayer.getSource()
+    });
+  } else {
+    console.log('Map has no NOTES layer, skipping edit buttons.');
+  }
 }
 
 const mainGetFeatureDataByClick = async () => {
