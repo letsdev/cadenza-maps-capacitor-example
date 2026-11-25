@@ -1479,7 +1479,7 @@ const mainDownloadAndShowMap = async () => {
   // Find example app in downloadable maps descriptions
   const downloadableMaps = await mapRepository.getDownloadableMaps();
   console.log('Downloadable maps:', downloadableMaps.map((m) => `${m.id}: ${m.title} (${m.size} bytes)`));
-  const exampleId = 'download15807'; // map with tile layer, randomly picked from mobile server
+  const exampleId = 'download2558'; // "Einstiegskarte" (14 MB), verified on the DISY mobile server 2026-11-25
   const downloadableMapDescription = downloadableMaps.find((map) => map.id === exampleId)
     // Fallback: the hardcoded id is gone from the server, take the smallest downloadable map instead
     ?? downloadableMaps
